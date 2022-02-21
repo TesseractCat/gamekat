@@ -1,4 +1,5 @@
 #include "pico/stdlib.h"
+#include "pico/bootrom.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 
@@ -35,6 +36,18 @@ int main() {
 
     // Initialize joybusComms
     initComms(GC_DATA_PIN, us);
+    
+    // Wait for GC communication, otherwise reboot into BOOTSEL mode
+    bool reboot_bootsel = true;
+    while (to_ms_since_boot(get_absolute_time()) < 2500) {
+        if (!gpio_get(GC_DATA_PIN)) {
+            reboot_bootsel = false;
+            break;
+        }
+    }
+    if (reboot_bootsel)
+        reset_usb_boot(0,0);
+    
     // Initialize TinyUSB
     tusb_init();
 
