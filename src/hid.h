@@ -2,6 +2,7 @@
 #ifndef HID_H
 #define HID_H
 
+#include "pico/multicore.h"
 #include "bsp/board.h"
 #include "tusb.h"
 
