@@ -15,24 +15,11 @@
 
 #define LED_PIN 25
 #define GC_DATA_PIN 4
-//#define MULTICORE
 
 const uint32_t us = 125;
 
 extern hid_keyboard_report_t usb_keyboard_report;
 extern int keyboard_connected;
-
-void core1_joybus_loop() {
-    GCReport gcReport; // GameCube controller data
-    while (1) {
-        awaitPoll();
-        
-        RectangleInput ri = getRectangleInput(&usb_keyboard_report);
-        gcReport = makeReport(ri);
-
-        respondToPoll(&gcReport); // Send controller data
-    }
-}
 
 int main() {
     board_init();
@@ -65,17 +52,11 @@ int main() {
     // Initialize TinyUSB
     tusb_init();
     
-#ifdef MULTICORE
-    // Launch gcc poll loop on core 1
-    multicore_launch_core1(core1_joybus_loop);
-#endif
-
     GCReport gcReport; // GameCube controller data
     while (1) {
         // Poll keyboard
         tuh_task();
         
-#ifndef MULTICORE
         // Poll gamecube
         awaitPoll();
         
@@ -83,7 +64,6 @@ int main() {
         gcReport = makeReport(ri);
 
         respondToPoll(&gcReport); // Send controller data
-#endif
     }
 
     return 1;
