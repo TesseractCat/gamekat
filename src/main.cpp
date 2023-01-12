@@ -7,7 +7,8 @@
 #include "bsp/board.h"
 #include "tusb.h"
 
-#include "joybusComms.hpp"
+#include "gcReport.hpp"
+#include "joybus.hpp"
 
 #include "hid.h"
 #include "mapping.h"
@@ -34,11 +35,11 @@ int main() {
     gpio_put(LED_PIN, 0);
     
     initLogic(ParasolDashing::BAN, SlightSideB::BAN);
-
-    // Initialize joybusComms
-    initComms(GC_DATA_PIN, us);
     
     // Wait for GC communication, otherwise reboot into BOOTSEL mode
+    gpio_init(GC_DATA_PIN);
+    gpio_set_dir(GC_DATA_PIN, GPIO_IN);
+    gpio_pull_up(GC_DATA_PIN);
     bool reboot_bootsel = true;
     while (to_ms_since_boot(get_absolute_time()) < 2500) {
         if (!gpio_get(GC_DATA_PIN)) {
@@ -51,20 +52,16 @@ int main() {
     
     // Initialize TinyUSB
     tusb_init();
-    
-    GCReport gcReport; // GameCube controller data
-    while (1) {
+
+    enterMode(GC_DATA_PIN, []() {
         // Poll keyboard
         tuh_task();
-        
-        // Poll gamecube
-        awaitPoll();
-        
-        RectangleInput ri = getRectangleInput(&usb_keyboard_report);
-        gcReport = makeReport(ri);
 
-        respondToPoll(&gcReport); // Send controller data
-    }
+        RectangleInput ri = getRectangleInput(&usb_keyboard_report);
+        GCReport gcReport = makeReport(ri);
+
+        return gcReport;
+    });
 
     return 1;
 }

@@ -29,9 +29,16 @@ include_directories(include pico-joybus-comms/include)
 
 add_executable(GameKeeb
     src/main.cpp
-    pico-joybus-comms/src/joybusComms.cpp
+    pico-joybus-comms/src/joybus.cpp
 )
 
-target_link_libraries(GameKeeb pico_stdlib pico_bootrom pico_multicore hardware_resets hardware_irq tinyusb_host tinyusb_board hardware_flash)
+pico_generate_pio_header(GameKeeb ${CMAKE_CURRENT_LIST_DIR}/pico-joybus-comms/pio/joybus.pio)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_LIST_DIR}/generated/joybus.pio.h
+        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/joybus.pio
+        COMMAND Pioasm ${CMAKE_CURRENT_LIST_DIR}/joybus.pio ${CMAKE_CURRENT_LIST_DIR}/generated/joybus.pio.h
+        )
+
+
+target_link_libraries(GameKeeb pico_stdlib pico_platform hardware_pio pico_bootrom pico_multicore hardware_resets hardware_irq tinyusb_host tinyusb_board hardware_flash)
 
 pico_add_extra_outputs(GameKeeb)
