@@ -6,6 +6,10 @@ A fork of [GameKeeb](https://github.com/JonnyHaystack/GameKeeb-firmware) that st
 
 After fetching the Pico SDK via CMake, make sure to manually update the TinyUSB lib.
 
+## Building
+
+See the guide at https://github.com/raspberrypi/pico-sdk (used WSL).
+
 ## Dependencies
 
 - https://github.com/raspberrypi/pico-sdk
