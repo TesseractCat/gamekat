@@ -39,6 +39,6 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_LIST_DIR}/generated/joybus.pio.h
         )
 
 
-target_link_libraries(GameKeeb pico_stdlib pico_platform hardware_pio pico_bootrom pico_multicore hardware_resets hardware_irq tinyusb_host tinyusb_board hardware_flash)
+target_link_libraries(GameKeeb pico_stdlib pico_platform hardware_pio pico_bootrom pico_multicore hardware_resets hardware_irq tinyusb_device tinyusb_board hardware_flash)
 
 pico_add_extra_outputs(GameKeeb)

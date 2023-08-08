@@ -49,7 +49,7 @@ const Mapping defaultKeymap {
         /*      r: */ HID_KEY_O,
         /*     ls: */ HID_KEY_NONE,
         /*     ms: */ HID_KEY_SEMICOLON,
-        /*     mx: */ HID_KEY_F15,
+        /*     mx: */ HID_KEY_CONTROL_LEFT,
         /*     my: */ HID_KEY_NONE,
         /*  start: */ HID_KEY_ENTER,
         /*   left: */ HID_KEY_A,
@@ -67,12 +67,12 @@ const Mapping defaultKeymap {
     }
 };
 
-RectangleInput getRectangleInput(hid_keyboard_report_t const *report) {
+RectangleInput getRectangleInput(uint8_t keycodes[], size_t n) {
     RectangleInput ri = {0};
     
-    for (int i = 0; i < 6; i++) {
-        // Keycode (of 6 max keys pressed)
-        uint8_t keycode = report->keycode[i];
+    for (int i = 0; i < n; i++) {
+        // Keycode (of n max keys pressed)
+        uint8_t keycode = keycodes[i];
         if (keycode == HID_KEY_NONE)
             continue;
         

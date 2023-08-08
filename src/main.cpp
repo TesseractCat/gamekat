@@ -13,17 +13,27 @@
 #include "hid.h"
 #include "mapping.h"
 #include "logic.h"
+#include "matrix.h"
 
 #define LED_PIN 25
-#define GC_DATA_PIN 4
+#define GC_DATA_PIN 28
+#define GC_3V3_PIN 27
 
 const uint32_t us = 125;
 
-extern hid_keyboard_report_t usb_keyboard_report;
-extern int keyboard_connected;
+extern bool matrix[ROW_COUNT][COLUMN_COUNT];
+extern uint8_t keys12[12];
+extern uint8_t keys6[6];
+
+void matrix_loop() {
+    while (true) {
+        gpio_put(LED_PIN, matrix_scan() > 0);
+    }
+}
 
 int main() {
     board_init();
+    matrix_init();
 
     // Clock at 125MHz
     set_sys_clock_khz(us * 1000, true);
@@ -32,7 +42,13 @@ int main() {
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
-    gpio_put(LED_PIN, 0);
+
+    // for (int i = 0; i < 5000; i++) {
+    //     sleep_ms(1);
+
+    //     matrix_scan();
+    //     gpio_put(LED_PIN, matrix[1][1]);
+    // }
     
     initLogic(ParasolDashing::BAN, SlightSideB::BAN);
     
@@ -47,17 +63,20 @@ int main() {
             break;
         }
     }
-    if (reboot_bootsel)
+    if (reboot_bootsel) {
         reset_usb_boot(0,0);
+
+        // Keyboard mode
+        // Initialize TinyUSB
+        tusb_init();
+    }
+
+    // Runs on different core because matrix_scan takes ~120 us
+    // and the callback for pico-joybus-comms should be instant
+    multicore_launch_core1(matrix_loop);
     
-    // Initialize TinyUSB
-    tusb_init();
-
     enterMode(GC_DATA_PIN, []() {
-        // Poll keyboard
-        tuh_task();
-
-        RectangleInput ri = getRectangleInput(&usb_keyboard_report);
+        RectangleInput ri = getRectangleInput(keys12, 12);
         GCReport gcReport = makeReport(ri);
 
         return gcReport;
