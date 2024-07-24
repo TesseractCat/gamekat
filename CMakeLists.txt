@@ -25,6 +25,7 @@ else()
     message("Git not found or not a git repo")
 endif()
 
+add_subdirectory(usb_midi_host)
 include_directories(include pico-joybus-comms/include)
 
 add_executable(GameKeeb
@@ -39,6 +40,6 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_LIST_DIR}/generated/joybus.pio.h
         )
 
 
-target_link_libraries(GameKeeb pico_stdlib pico_platform hardware_pio pico_bootrom pico_multicore hardware_resets hardware_irq tinyusb_host tinyusb_board hardware_flash)
+target_link_libraries(GameKeeb pico_stdlib pico_platform hardware_pio pico_bootrom pico_multicore hardware_resets hardware_irq tinyusb_host tinyusb_board usb_midi_host_app_driver hardware_flash)
 
 pico_add_extra_outputs(GameKeeb)

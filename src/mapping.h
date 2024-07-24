@@ -40,51 +40,43 @@ struct Mapping {
 };
 const Mapping defaultKeymap {
     {
-        /*      a: */ HID_KEY_I,
-        /*      b: */ HID_KEY_SPACE,
-        /*      x: */ HID_KEY_P,
-        /*      y: */ HID_KEY_N,
-        /*      z: */ HID_KEY_M,
-        /*      l: */ HID_KEY_E,
-        /*      r: */ HID_KEY_O,
-        /*     ls: */ HID_KEY_NONE,
-        /*     ms: */ HID_KEY_SEMICOLON,
-        /*     mx: */ HID_KEY_F15,
-        /*     my: */ HID_KEY_NONE,
-        /*  start: */ HID_KEY_ENTER,
-        /*   left: */ HID_KEY_A,
-        /*  right: */ HID_KEY_F,
-        /*     up: */ HID_KEY_D,
-        /*   down: */ HID_KEY_S,
-        /*  cLeft: */ HID_KEY_H,
-        /* cRight: */ HID_KEY_L,
-        /*    cUp: */ HID_KEY_K,
-        /*  cDown: */ HID_KEY_J,
-        /*  dLeft: */ HID_KEY_ARROW_LEFT,
-        /* dRight: */ HID_KEY_ARROW_RIGHT,
-        /*    dUp: */ HID_KEY_ARROW_UP,
-        /*  dDown: */ HID_KEY_ARROW_DOWN,
+        /*      a: */ 21,
+        /*      b: */ 17,
+        /*      x: */ 24,
+        /*      y: */ 255,
+        /*      z: */ 19,
+        /*      l: */ 255,
+        /*      r: */ 23,
+        /*     ls: */ 255,
+        /*     ms: */ 255,
+        /*     mx: */ 7,
+        /*     my: */ 255,
+        /*  start: */ 12,
+        /*   left: */ 0,
+        /*  right: */ 5,
+        /*     up: */ 4,
+        /*   down: */ 2,
+        /*  cLeft: */ 18,
+        /* cRight: */ 22,
+        /*    cUp: */ 20,
+        /*  cDown: */ 16,
+        /*  dLeft: */ 1,
+        /* dRight: */ 3,
+        /*    dUp: */ 6,
+        /*  dDown: */ 8,
     }
 };
 
-RectangleInput getRectangleInput(hid_keyboard_report_t const *report) {
+RectangleInput getRectangleInput(bool const *piano) {
     RectangleInput ri = {0};
     
-    for (int i = 0; i < 6; i++) {
-        // Keycode (of 6 max keys pressed)
-        uint8_t keycode = report->keycode[i];
-        if (keycode == HID_KEY_NONE)
-            continue;
+    for (int j = 0; j < NUMBER_OF_INPUTS; j++) {
+        // Get mapping from defaultKeymap
+        uint8_t mapped_key = defaultKeymap.keys[j];
         
-        for (int j = 0; j < NUMBER_OF_INPUTS; j++) {
-            // Get mapping from defaultKeymap
-            uint8_t mapped_keycode = defaultKeymap.keys[j];
-            
-            if (keycode == mapped_keycode) {
-                // We are pressing this mapping!
-                ri.buffer[j] = true;
-                break;
-            }
+        if (mapped_key >= 0 && mapped_key < PIANO_KEYS && piano[mapped_key]) {
+            // We are pressing this mapping!
+            ri.buffer[j] = true;
         }
     }
     return ri;

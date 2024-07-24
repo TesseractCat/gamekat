@@ -4,7 +4,7 @@
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 
-#include "bsp/board.h"
+#include "bsp/board_api.h"
 #include "tusb.h"
 
 #include "gcReport.hpp"
@@ -19,8 +19,11 @@
 
 const uint32_t us = 125;
 
-extern hid_keyboard_report_t usb_keyboard_report;
-extern int keyboard_connected;
+void poll_usb_thread() {
+    while (1) {
+        tuh_task();
+    }
+}
 
 int main() {
     board_init();
@@ -33,8 +36,6 @@ int main() {
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, 0);
-    
-    initLogic(ParasolDashing::BAN, SlightSideB::BAN);
     
     // Wait for GC communication, otherwise reboot into BOOTSEL mode
     gpio_init(GC_DATA_PIN);
@@ -50,14 +51,18 @@ int main() {
     if (reboot_bootsel)
         reset_usb_boot(0,0);
     
+    initLogic(ParasolDashing::BAN, SlightSideB::BAN);
+    
     // Initialize TinyUSB
     tusb_init();
 
+    multicore_launch_core1(poll_usb_thread);
+
     enterMode(GC_DATA_PIN, []() {
         // Poll keyboard
-        tuh_task();
+        // tuh_task();
 
-        RectangleInput ri = getRectangleInput(&usb_keyboard_report);
+        RectangleInput ri = getRectangleInput(piano);
         GCReport gcReport = makeReport(ri);
 
         return gcReport;
