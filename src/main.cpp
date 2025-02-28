@@ -4,7 +4,7 @@
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 
-#include "bsp/board.h"
+#include "bsp/board_api.h"
 #include "tusb.h"
 
 #include "gcReport.hpp"

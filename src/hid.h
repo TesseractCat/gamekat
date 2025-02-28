@@ -3,7 +3,7 @@
 #define HID_H
 
 #include "pico/multicore.h"
-#include "bsp/board.h"
+#include "bsp/board_api.h"
 #include "tusb.h"
 
 hid_keyboard_report_t usb_keyboard_report;
